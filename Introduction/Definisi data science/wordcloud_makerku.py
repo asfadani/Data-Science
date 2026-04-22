@@ -11,37 +11,47 @@ class AmbilData:
         self.user = {
             'User-Agent': str(user+"/1.0 ()")
         }
-        self.data = None
+        self.response_obj = None   # Untuk objek Response dari requests
+        self.html_content = None   # Untuk teks HTML mentah (String)
+        self.clean_text = None     # Untuk teks bersih hasil BeautifulSoup (String)
+        self.insight_result = None # Untuk List/Tuples hasil dari nlp_rake
     
     def konek_data(self):
         url = self.link_url
         profil = self.user
         if url is not None and profil is not None:
-            response = url
+            # response = url
             try:
-                data = requests.get(response, headers=profil)
-                if data.status_code == 200:
+                response = requests.get(url, headers=profil)
+                # data = requests.get(response, headers=profil)
+                if response.status_code == 200:
                     print("Berhasil terhubung ke server data")
                 else:
-                    print(f"Gagal dengan kode: {data.status_code}")
-                self.data = data
-            except Exception as e:
-                print(e)
+                    print(f"Gagal dengan kode: {response.status_code}")
+                self.response_obj = response
+            except requests.exceptions.HTTPError as http_err:
+                print(f"Gagal: Server mengembalikan HTTP error: {http_err}")
+            except requests.exceptions.ConnectionError as conn_err:
+                print(f"Gagal: Tidak bisa menyambung ke server (Cek koneksi/URL): {conn_err}")
+            except requests.exceptions.Timeout as timeout_err:
+                print(f"Gagal: Waktu koneksi habis (Timeout): {timeout_err}")
+            except requests.exceptions.RequestException as req_err:
+                print(f"Gagal: Terjadi kesalahan pada requests: {req_err}")
 
     def ambil_data(self):
-        data = self.data
-        if (data is not None):
+        if self.response_obj is not None:
             try:
-                data = data.content.decode('utf-8')
-                print(data[:1000])
-                self.data = data
-            except Exception as e:
-                print(e)
+                html_text = self.response_obj.content.decode('utf-8')
+                print(f"Berhasil decode data HTML. Panjang karakter: {len(html_text)}")
+                self.html_content = html_text
+            except UnicodeDecodeError as decode_err:
+                print(f"Gagal: Teks tidak bisa dibaca dengan format UTF-8: {decode_err}")
+            except AttributeError as attr_err:
+                print(f"Gagal: Objek respons tidak valid: {attr_err}")
 
     def urai_data(self):
-        data = self.data
-        if data is not None:
-            soup = BeautifulSoup(data, "lxml")
+        if self.html_content is not None:
+            soup = BeautifulSoup(self.html_content, "lxml")
             konten = soup.find('div', class_='mw-parser-output') 
             def memebersihkan_konten(node_konten):
                 """Menghapus elemen non-artikel umum"""
@@ -64,20 +74,24 @@ class AmbilData:
 
             if konten:
                 memebersihkan_konten(konten)
-                data = konten.get_text(separator=' ', strip=True)
-                print(data[:1000])    
-                self.data = data
+                teks_bersih = konten.get_text(separator=' ', strip=True)
+                print(teks_bersih[:500] + "...\n[Teks Dipotong]")    
+                self.clean_text = teks_bersih
             else:
-                print("Tidak dapat menemukan konten utama")
-                data = konten.get_text(separator=' ', strip=True)
-                print(data[:1000])
+                print("Peringatan: Elemen 'mw-parser-output' tidak ditemukan di halaman ini.")
+                print("Mengamankan aliran data dengan memberikan string kosong.")
+                self.clean_text = ""
+
 
     def ambil_insight(self):
-        data = self.data
-        ekstraktor = nlp_rake.Rake(max_words=2, min_freq=3, min_chars=5)
-        hasil = ekstraktor.apply(data)
-        self.data = hasil
-        return hasil
+        if self.clean_text:
+            ekstraktor = nlp_rake.Rake(max_words=2, min_freq=3, min_chars=5)
+            hasil = ekstraktor.apply(self.clean_text)
+            self.insight_result = hasil
+            return hasil
+        else:
+            print("Teks bersih belum tersedia. Harap jalankan urai_data() terlebih dahulu.")
+            return None
     
 class Visualisasi:
     def __init__(self, data=None, batas=None):
