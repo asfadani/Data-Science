@@ -8,10 +8,8 @@ class AmbilData:
     
     def konek_data(self):
         import requests
-        # global data
         url = self.link_url
         profil = self.user
-        # data = self.data
         if url is not None and profil is not None:
             response = url
             try:
@@ -26,9 +24,7 @@ class AmbilData:
 
     def ambil_data(self):
         import requests
-        # global data
         data = self.data
-        # url = self.link_url
         if (data is not None):
             try:
                 data = data.content.decode('utf-8')
