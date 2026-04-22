@@ -1,3 +1,10 @@
+import requests
+from bs4 import BeautifulSoup
+import nlp_rake
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+
 class AmbilData:
     def __init__(self,link_url=None, user=None):
         self.link_url = link_url
@@ -7,7 +14,6 @@ class AmbilData:
         self.data = None
     
     def konek_data(self):
-        import requests
         url = self.link_url
         profil = self.user
         if url is not None and profil is not None:
@@ -23,7 +29,6 @@ class AmbilData:
                 print(e)
 
     def ambil_data(self):
-        import requests
         data = self.data
         if (data is not None):
             try:
@@ -34,7 +39,6 @@ class AmbilData:
                 print(e)
 
     def urai_data(self):
-        from bs4 import BeautifulSoup
         data = self.data
         if data is not None:
             soup = BeautifulSoup(data, "lxml")
@@ -69,7 +73,6 @@ class AmbilData:
                 print(data[:1000])
 
     def ambil_insight(self):
-        import nlp_rake
         data = self.data
         ekstraktor = nlp_rake.Rake(max_words=2, min_freq=3, min_chars=5)
         hasil = ekstraktor.apply(data)
@@ -82,7 +85,6 @@ class Visualisasi:
         self.batas = batas
 
     def bar_chart(self):
-        import matplotlib.pyplot as plt
         batas = self.batas
         data_teratas = self.data[:batas]
         k, v = zip(*data_teratas)
@@ -95,8 +97,6 @@ class Visualisasi:
         plt.show()
     
     def wordcloud_maker(self):
-        from wordcloud import WordCloud
-        import matplotlib.pyplot as plt
         batas = self.batas
         data_teratas = self.data[:batas]
         wc = WordCloud(background_color='white', width=800, height=600)
