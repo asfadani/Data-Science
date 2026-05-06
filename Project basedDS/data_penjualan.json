@@ -1,0 +1,42 @@
+{
+  "dataset_penjualan": [
+    {
+      "id_barang": "A",
+      "jumlah_stok": 120,
+      "harga": 50000,
+      "keputusan": "Diskon"
+    },
+    {
+      "id_barang": "B",
+      "jumlah_stok": 200,
+      "harga": 120000,
+      "keputusan": "Thrift"
+    },
+    {
+      "id_barang": "C",
+      "jumlah_stok": null,
+      "harga": 40000,
+      "keputusan": "Diskon"
+    },
+    {
+      "id_barang": "D",
+      "jumlah_stok": 220,
+      "harga": 150000,
+      "keputusan": "Thrift"
+    },
+    {
+      "id_barang": "E",
+      "jumlah_stok": 80,
+      "harga": 60000,
+      "keputusan": "Diskon"
+    }
+  ],
+  "data_uji": [
+    {
+      "id_barang": "F",
+      "jumlah_stok": 180,
+      "harga": 130000,
+      "keputusan": "Thrift"
+    }
+  ]
+}
